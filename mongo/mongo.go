@@ -7,15 +7,21 @@ import (
 
 // User represents the object stored in database.
 type User struct {
-	Nickname string `json:"nickname" bson:"nickname"`
+	ID        string `json:"id" bson:"_id,omitempty"`
+	Nickname  string `json:"nickname" bson:"nickname"`
+	FirstName string `json:"first_name" bson:"first_name"`
+	LastName  string `json:"last_name" bson:"last_name"`
+	Password  string `json:"password" bson:"password"`
+	Email     string `json:"email" bson:"email"`
+	Country   string `json:"country" bson:"country"`
 }
 
 // Collection represents the interface to wrap the collection from mongo drive
 type Collection interface {
-	Insert(ctx context.Context, doc interface{}) error
+	InsertOne(ctx context.Context, doc interface{}) error
 }
 
-// Database represents a mongo client wrapped to provide service-specific functionality.
+// Mongo represents a mongo client wrapped to provide service-specific functionality.
 type Mongo struct {
 	Client Collection
 }
@@ -26,7 +32,7 @@ func (mgo Mongo) CreateUser(ctx context.Context, nickname string) (*User, error)
 		Nickname: nickname,
 	}
 
-	if err := mgo.Client.Insert(ctx, user); err != nil {
+	if err := mgo.Client.InsertOne(ctx, user); err != nil {
 		return nil, fmt.Errorf("cannot insert: %s", err)
 	}
 

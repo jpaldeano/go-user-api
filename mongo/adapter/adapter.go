@@ -47,7 +47,7 @@ type CollectionAdapter struct {
 }
 
 // Insert adds a document to Database
-func (c CollectionAdapter) Insert(ctx context.Context, doc interface{}) error {
+func (c CollectionAdapter) InsertOne(ctx context.Context, doc interface{}) error {
 	_, err := c.Collection.InsertOne(ctx, doc)
 	return err
 }
