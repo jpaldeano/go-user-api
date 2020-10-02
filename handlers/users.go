@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -12,6 +13,7 @@ import (
 // UsersDatabase wraps the Database client functions
 type UsersDatabase interface {
 	CreateUser(ctx context.Context, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
+	UpdateUser(ctx context.Context, guid string, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
 }
 
 // Handler represents the handler for users routes
@@ -47,8 +49,28 @@ func (handler *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 // UpdateUser handles the Put /users/{userid} request
 func (handler *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userid := mux.Vars(r)["userid"]
+
+	userBody, err := validateJSON(r)
+	if err != nil {
+		writeResponse(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+
+	if validErrs := userBody.validate(); len(validErrs) > 0 {
+		err := map[string]interface{}{"validationError": validErrs}
+		writeResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := handler.Database.UpdateUser(r.Context(), userid, userBody.Nickname, userBody.FirstName, userBody.LastName, userBody.Password, userBody.Email, userBody.Country)
+	if err != nil {
+		fmt.Println(err)
+		writeResponse(w, http.StatusBadRequest, err)
+		return
+	}
+
 	// In case User, was inserted return the user object
-	writeResponse(w, http.StatusOK, userid)
+	writeResponse(w, http.StatusOK, user)
 }
 
 func writeResponse(w http.ResponseWriter, statusCode int, response interface{}) {

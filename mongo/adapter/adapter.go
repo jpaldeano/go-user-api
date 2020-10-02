@@ -46,8 +46,17 @@ type CollectionAdapter struct {
 	*mongolib.Collection
 }
 
-// Insert adds a document to Database
+// InsertOne adds a document in Mongo
 func (c CollectionAdapter) InsertOne(ctx context.Context, doc interface{}) error {
 	_, err := c.Collection.InsertOne(ctx, doc)
 	return err
+}
+
+// FindOneAndUpdate and updates a document to Database
+func (c CollectionAdapter) FindOneAndUpdate(ctx context.Context, filter interface{}, update interface{}) *mongolib.SingleResult {
+	after := mongolibopts.After
+	opt := mongolibopts.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+	}
+	return c.Collection.FindOneAndUpdate(ctx, filter, update, &opt)
 }
