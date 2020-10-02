@@ -1,20 +1,27 @@
 package handlers
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
+
+	"github.com/jpaldi/go-user-api/mongo"
 )
 
-func User struct {
+type User struct {
 	FirstName string
-	LastName string
-	Nickname string
-	Password string
-	Email string
-	Country string
+	LastName  string
+	Nickname  string
+	Password  string
+	Email     string
+	Country   string
+}
+
+type Database interface {
+	CreateUser(ctx context.Context, nickname string) (*mongo.User, error)
 }
 
 type LoginHandler struct {
+	Database Database
 }
 
 // Handle is responsible for handle user routes
@@ -31,10 +38,6 @@ func (handler *LoginHandler) Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handler *LoginHandler) post(w http.ResponseWriter, r *http.Request) error {
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
-	w.Write(response)
-
+	handler.Database.CreateUser(r.Context(), "conas")
 	return nil
 }

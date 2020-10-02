@@ -1,4 +1,2 @@
-# gognito-auth
-Provides authentication via cognito
-
-### Login
+# go-users-api
+todo
