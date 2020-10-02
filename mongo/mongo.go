@@ -27,9 +27,14 @@ type Mongo struct {
 }
 
 // CreateUser creates a user and returns the object if is successfully inserted
-func (mgo Mongo) CreateUser(ctx context.Context, nickname string) (*User, error) {
+func (mgo Mongo) CreateUser(ctx context.Context, nickname string, firstname string, lastname string, password string, email string, country string) (*User, error) {
 	user := User{
-		Nickname: nickname,
+		Nickname:  nickname,
+		FirstName: firstname,
+		LastName:  lastname,
+		Password:  password,
+		Email:     email,
+		Country:   country,
 	}
 
 	if err := mgo.Client.InsertOne(ctx, user); err != nil {

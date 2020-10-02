@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
 	"github.com/jpaldi/go-user-api/handlers"
 	"github.com/jpaldi/go-user-api/mongo"
 	adapter "github.com/jpaldi/go-user-api/mongo/adapter"
@@ -22,26 +23,28 @@ func main() {
 	ctx := context.Background()
 	database := mustBuildMongoAdapter(ctx)
 
-	mustBuildRoutes(database)
+	router := mux.NewRouter()
 
-	err := http.ListenAndServe(servicePort, nil)
+	mustBuildRoutes(router, database)
+
+	err := http.ListenAndServe(servicePort, router)
 	fmt.Println(err)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func mustBuildRoutes(db *adapter.ClientAdapter) {
-	usersHandler := handlers.UsersHandler{
+func mustBuildRoutes(r *mux.Router, db *adapter.ClientAdapter) {
+	usersHandler := handlers.Handler{
 		Database: mongo.Mongo{
 			Client: db.Collection(mongoDatabaseName, mongoCollectionName),
 		},
 	}
-	http.HandleFunc("/users", usersHandler.HandleUsers)
+	r.HandleFunc("/users", usersHandler.CreateUser).Methods(http.MethodPost)
+	r.HandleFunc("/users/{userid}", usersHandler.UpdateUser).Methods(http.MethodPut)
 }
 
 func mustBuildMongoAdapter(ctx context.Context) *adapter.ClientAdapter {
-	fmt.Println(mongoURI)
 	cl, err := adapter.NewClient(mongoURI)
 	if err != nil {
 		panic(err)

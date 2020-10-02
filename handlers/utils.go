@@ -1,6 +1,8 @@
 package handlers
 
-import "net/url"
+import (
+	"net/url"
+)
 
 type userRequestBody struct {
 	Nickname  string `json:"nickname"`
@@ -11,7 +13,7 @@ type userRequestBody struct {
 	Country   string `json:"country"`
 }
 
-func (u *userRequestBody) validate() map[string]interface{} {
+func (u *userRequestBody) validate() url.Values {
 	errs := url.Values{}
 	// check if the nickname empty
 	if u.Nickname == "" {
@@ -42,8 +44,7 @@ func (u *userRequestBody) validate() map[string]interface{} {
 	if u.Country == "" {
 		errs.Add("country", "The country field is required!")
 	}
-	validationErrors := map[string]interface{}{"validationError": errs}
 
-	return validationErrors
+	return errs
 
 }
