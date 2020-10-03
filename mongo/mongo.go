@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	validURLParams = []string{"nickname", "first_name", "country"}
+	validURLParams = []string{"nickname", "first_name", "country", "last_name", "email"}
 )
 
 // User represents the object stored in database.

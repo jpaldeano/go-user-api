@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 
@@ -37,7 +36,6 @@ func (handler *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// todo: Hash & Salt passwords: https://medium.com/@jcox250/password-hash-salt-using-golang-b041dc94cb72
 	user, err := handler.Database.CreateUser(r.Context(), userBody.Nickname, userBody.FirstName, userBody.LastName, userBody.Password, userBody.Email, userBody.Country)
 	if err != nil {
 		writeResponse(w, http.StatusInternalServerError, err)
@@ -99,21 +97,4 @@ func (handler *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	// In case User, was inserted return the user object
 	writeResponse(w, http.StatusOK, results)
-}
-
-func writeResponse(w http.ResponseWriter, statusCode int, response interface{}) {
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(response)
-}
-
-func validateJSON(r *http.Request) (*userRequestBody, error) {
-	userBody := &userRequestBody{}
-
-	defer r.Body.Close()
-	if err := json.NewDecoder(r.Body).Decode(userBody); err != nil {
-		return userBody, err
-	}
-
-	return userBody, nil
 }

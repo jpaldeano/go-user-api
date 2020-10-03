@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"net/http"
 	"net/url"
 )
 
@@ -47,4 +49,21 @@ func (u *userRequestBody) validate() url.Values {
 
 	return errs
 
+}
+
+func writeResponse(w http.ResponseWriter, statusCode int, response interface{}) {
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(response)
+}
+
+func validateJSON(r *http.Request) (*userRequestBody, error) {
+	userBody := &userRequestBody{}
+
+	defer r.Body.Close()
+	if err := json.NewDecoder(r.Body).Decode(userBody); err != nil {
+		return userBody, err
+	}
+
+	return userBody, nil
 }
