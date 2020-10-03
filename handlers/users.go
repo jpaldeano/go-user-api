@@ -29,7 +29,6 @@ func (handler *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		writeResponse(w, http.StatusBadRequest, "invalid json body")
 		return
 	}
-
 	if validErrs := userBody.validate(); len(validErrs) > 0 {
 		err := map[string]interface{}{"validationError": validErrs}
 		writeResponse(w, http.StatusBadRequest, err)

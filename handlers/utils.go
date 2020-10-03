@@ -17,6 +17,7 @@ type userRequestBody struct {
 
 func (u *userRequestBody) validate() url.Values {
 	errs := url.Values{}
+
 	// check if the nickname empty
 	if u.Nickname == "" {
 		errs.Add("nickname", "The nickname field is required!")
@@ -64,6 +65,5 @@ func validateJSON(r *http.Request) (*userRequestBody, error) {
 	if err := json.NewDecoder(r.Body).Decode(userBody); err != nil {
 		return userBody, err
 	}
-
 	return userBody, nil
 }
