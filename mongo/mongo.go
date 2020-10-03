@@ -109,27 +109,39 @@ func (mgo Mongo) GetUsers(ctx context.Context, params url.Values) ([]*User, erro
 	query := bson.M{}
 	for k, v := range params {
 		// check if the query parameter is expected to avoid SQL Injections
+		// for the purpose of this service, assume this route only allows one single parameter per key
 		if contains(validURLParams, k) {
-			query[k] = v
+			query[k] = v[0]
 		}
 	}
 
-	results, err := mgo.Client.Find(ctx, query)
+	cursor, err := mgo.Client.Find(ctx, query)
 	if err != nil {
 		return nil, err
 	}
+	users := []*User{}
 
-	var users interface{}
+	for cursor.Next(ctx) {
+		doc := bson.M{}
+		if err = cursor.Decode(&doc); err != nil {
+			return nil, err
+		}
 
-	bsonBytes, _ := bson.Marshal(results)
-	err = bson.Unmarshal(bsonBytes, &users)
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println(bsonBytes)
-		return nil, err
+		bytes, err := bson.Marshal(doc)
+		if err != nil {
+			return nil, err
+		}
+
+		u := User{}
+		err = bson.Unmarshal(bytes, &u)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, &u)
 	}
 
-	return nil, nil
+	return users, nil
 }
 
 func contains(arr []string, str string) bool {

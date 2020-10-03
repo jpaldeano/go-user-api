@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -67,7 +66,6 @@ func (handler *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := handler.Database.UpdateUser(r.Context(), userid, userBody.Nickname, userBody.FirstName, userBody.LastName, userBody.Password, userBody.Email, userBody.Country)
 	if err != nil {
-		fmt.Println(err)
 		writeResponse(w, http.StatusBadRequest, err)
 		return
 	}
