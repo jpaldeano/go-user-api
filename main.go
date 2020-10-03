@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -19,13 +20,24 @@ var (
 	mongoCollectionName = os.Getenv("MONGO_COLLECTION_NAME")
 )
 
+type health struct {
+	db *adapter.ClientAdapter
+}
+
 func main() {
 	ctx := context.Background()
 	database := mustBuildMongoAdapter(ctx)
 
 	router := mux.NewRouter()
+	mongoDB := mongo.Mongo{
+		Client: database.Collection(mongoDatabaseName, mongoCollectionName),
+	}
 
-	mustBuildRoutes(router, database)
+	healthChecker := health{
+		db: database,
+	}
+
+	mustBuildRoutes(router, mongoDB, healthChecker)
 
 	err := http.ListenAndServe(servicePort, router)
 	fmt.Println(err)
@@ -34,12 +46,12 @@ func main() {
 	}
 }
 
-func mustBuildRoutes(r *mux.Router, db *adapter.ClientAdapter) {
+func mustBuildRoutes(r *mux.Router, db mongo.Mongo, healthChecker health) {
+
 	usersHandler := handlers.Handler{
-		Database: mongo.Mongo{
-			Client: db.Collection(mongoDatabaseName, mongoCollectionName),
-		},
+		Database: db,
 	}
+	r.HandleFunc("/health", healthChecker.health).Methods(http.MethodGet)
 
 	r.HandleFunc("/users", usersHandler.CreateUser).Methods(http.MethodPost)
 	r.HandleFunc("/users", usersHandler.GetUsers).Methods(http.MethodGet).Queries()
@@ -55,4 +67,24 @@ func mustBuildMongoAdapter(ctx context.Context) *adapter.ClientAdapter {
 	}
 
 	return cl
+}
+
+func (h health) health(w http.ResponseWriter, r *http.Request) {
+	var databaseStatus = "OK"
+	err := h.db.Ping(context.TODO(), nil)
+	if err != nil {
+		databaseStatus = "UNHEALTHY"
+	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(200)
+
+	type HealthStatusResponse struct {
+		Database string `json:"database_status"`
+	}
+
+	response := HealthStatusResponse{
+		Database: databaseStatus,
+	}
+	json.NewEncoder(w).Encode(response)
 }
