@@ -3,10 +3,15 @@ package mongo
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	mongolib "go.mongodb.org/mongo-driver/mongo"
+)
+
+var (
+	validURLParams = []string{"nickname", "first_name", "country"}
 )
 
 // User represents the object stored in database.
@@ -20,10 +25,12 @@ type User struct {
 	Country   string `json:"country" bson:"country"`
 }
 
-// Collection represents the interface to wrap the collection from mongo drive
+// Collection represents the interface to wrap the mongo drive collection
 type Collection interface {
 	InsertOne(ctx context.Context, doc interface{}) error
 	FindOneAndUpdate(ctx context.Context, filter interface{}, update interface{}) *mongolib.SingleResult
+	DeleteOne(ctx context.Context, filter interface{}) error
+	Find(ctx context.Context, query interface{}) (*mongolib.Cursor, error)
 }
 
 // Mongo represents a mongo client wrapped to provide service-specific functionality.
@@ -82,4 +89,54 @@ func (mgo Mongo) UpdateUser(ctx context.Context, guid string, nickname string, f
 		return nil, err
 	}
 	return &user, nil
+}
+
+// RemoveUser removes a user from mongo
+func (mgo Mongo) RemoveUser(ctx context.Context, guid string) error {
+	filter := bson.M{
+		"_id": guid,
+	}
+	err := mgo.Client.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetUsers get a users from mongo
+func (mgo Mongo) GetUsers(ctx context.Context, params url.Values) ([]*User, error) {
+	query := bson.M{}
+	for k, v := range params {
+		// check if the query parameter is expected to avoid SQL Injections
+		if contains(validURLParams, k) {
+			query[k] = v
+		}
+	}
+
+	results, err := mgo.Client.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	var users interface{}
+
+	bsonBytes, _ := bson.Marshal(results)
+	err = bson.Unmarshal(bsonBytes, &users)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println(bsonBytes)
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func contains(arr []string, str string) bool {
+	for _, a := range arr {
+		if a == str {
+			return true
+		}
+	}
+	return false
 }

@@ -40,8 +40,12 @@ func mustBuildRoutes(r *mux.Router, db *adapter.ClientAdapter) {
 			Client: db.Collection(mongoDatabaseName, mongoCollectionName),
 		},
 	}
+
 	r.HandleFunc("/users", usersHandler.CreateUser).Methods(http.MethodPost)
+	r.HandleFunc("/users", usersHandler.GetUsers).Methods(http.MethodGet).Queries()
 	r.HandleFunc("/users/{userid}", usersHandler.UpdateUser).Methods(http.MethodPut)
+	r.HandleFunc("/users/{userid}", usersHandler.RemoveUser).Methods(http.MethodDelete)
+
 }
 
 func mustBuildMongoAdapter(ctx context.Context) *adapter.ClientAdapter {

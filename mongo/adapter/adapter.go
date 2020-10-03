@@ -56,7 +56,18 @@ func (c CollectionAdapter) InsertOne(ctx context.Context, doc interface{}) error
 func (c CollectionAdapter) FindOneAndUpdate(ctx context.Context, filter interface{}, update interface{}) *mongolib.SingleResult {
 	after := mongolibopts.After
 	opt := mongolibopts.FindOneAndUpdateOptions{
-		ReturnDocument: &after,
+		ReturnDocument: &after, // ReturnDocument option to return the updated document
 	}
 	return c.Collection.FindOneAndUpdate(ctx, filter, update, &opt)
+}
+
+// DeleteOne removes a document from Mongo
+func (c CollectionAdapter) DeleteOne(ctx context.Context, filter interface{}) error {
+	_, err := c.Collection.DeleteOne(ctx, filter)
+	return err
+}
+
+// Find returns all documents from Mongo matching the given query
+func (c CollectionAdapter) Find(ctx context.Context, query interface{}) (*mongolib.Cursor, error) {
+	return c.Collection.Find(ctx, query)
 }
