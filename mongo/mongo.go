@@ -109,7 +109,6 @@ func (mgo Mongo) GetUsers(ctx context.Context, params url.Values) ([]*User, erro
 	query := bson.M{}
 	for k, v := range params {
 		// check if the query parameter is expected to avoid SQL Injections
-		// for the purpose of this service, assume this route only allows one single parameter per key
 		if contains(validURLParams, k) {
 			query[k] = v[0]
 		}

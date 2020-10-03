@@ -26,9 +26,8 @@ type health struct {
 
 func main() {
 	ctx := context.Background()
-	database := mustBuildMongoAdapter(ctx)
-
 	router := mux.NewRouter()
+	database := mustBuildMongoAdapter(ctx)
 	mongoDB := mongo.Mongo{
 		Client: database.Collection(mongoDatabaseName, mongoCollectionName),
 	}
@@ -40,7 +39,6 @@ func main() {
 	mustBuildRoutes(router, mongoDB, healthChecker)
 
 	err := http.ListenAndServe(servicePort, router)
-	fmt.Println(err)
 	if err != nil {
 		panic(err)
 	}
@@ -52,7 +50,6 @@ func mustBuildRoutes(r *mux.Router, db mongo.Mongo, healthChecker health) {
 		Database: db,
 	}
 	r.HandleFunc("/health", healthChecker.health).Methods(http.MethodGet)
-
 	r.HandleFunc("/users", usersHandler.CreateUser).Methods(http.MethodPost)
 	r.HandleFunc("/users", usersHandler.GetUsers).Methods(http.MethodGet).Queries()
 	r.HandleFunc("/users/{userid}", usersHandler.UpdateUser).Methods(http.MethodPut)
@@ -65,7 +62,6 @@ func mustBuildMongoAdapter(ctx context.Context) *adapter.ClientAdapter {
 	if err != nil {
 		panic(err)
 	}
-
 	return cl
 }
 
@@ -76,9 +72,6 @@ func (h health) health(w http.ResponseWriter, r *http.Request) {
 		databaseStatus = "UNHEALTHY"
 	}
 
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(200)
-
 	type HealthStatusResponse struct {
 		Database string `json:"database_status"`
 	}
@@ -86,5 +79,8 @@ func (h health) health(w http.ResponseWriter, r *http.Request) {
 	response := HealthStatusResponse{
 		Database: databaseStatus,
 	}
+
+	w.Header().Set("Content-type", "application/json")
+	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(response)
 }
