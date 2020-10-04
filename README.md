@@ -87,7 +87,8 @@ This route accepts the following parameters: nickname, first_name, country, last
 Response:
 Status Code 200
 body: 
-```[
+```
+[
         {
             "nickname": "jpaldi",
             "email": "jpaldi@email.pt",
