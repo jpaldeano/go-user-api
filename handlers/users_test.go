@@ -11,6 +11,7 @@ import (
 
 	"github.com/jpaldi/go-user-api/handlers"
 	"github.com/jpaldi/go-user-api/mongo"
+	"github.com/sirupsen/logrus"
 )
 
 type mockDatabase struct {
@@ -93,6 +94,7 @@ func TestCreateUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := handlers.Handler{
 				Database: tt.database,
+				Logger:   logrus.New(),
 			}
 
 			w := httptest.NewRecorder()
