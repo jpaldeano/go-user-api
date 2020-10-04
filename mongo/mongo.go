@@ -29,7 +29,7 @@ type User struct {
 type Collection interface {
 	InsertOne(ctx context.Context, doc interface{}) error
 	FindOneAndUpdate(ctx context.Context, filter interface{}, update interface{}) *mongolib.SingleResult
-	DeleteOne(ctx context.Context, filter interface{}) error
+	DeleteOne(ctx context.Context, filter interface{}) (*mongolib.DeleteResult, error)
 	Find(ctx context.Context, query interface{}) (*mongolib.Cursor, error)
 }
 
@@ -92,16 +92,13 @@ func (mgo Mongo) UpdateUser(ctx context.Context, guid string, nickname string, f
 }
 
 // RemoveUser removes a user from mongo
-func (mgo Mongo) RemoveUser(ctx context.Context, guid string) error {
+func (mgo Mongo) RemoveUser(ctx context.Context, guid string) (int64, error) {
 	filter := bson.M{
 		"_id": guid,
 	}
-	err := mgo.Client.DeleteOne(ctx, filter)
-	if err != nil {
-		return err
-	}
+	res, err := mgo.Client.DeleteOne(ctx, filter)
 
-	return nil
+	return res.DeletedCount, err
 }
 
 // GetUsers get a users from mongo

@@ -15,7 +15,7 @@ type mockClient struct {
 type mockDatabase struct {
 	insertOne        func(ctx context.Context, doc interface{}) error
 	findOneAndUpdate func(ctx context.Context, filter interface{}, update interface{}) *mongolib.SingleResult
-	deleteOne        func(ctx context.Context, filter interface{}) error
+	deleteOne        func(ctx context.Context, filter interface{}) (*mongolib.DeleteResult, error)
 	find             func(ctx context.Context, query interface{}) (*mongolib.Cursor, error)
 }
 
@@ -23,7 +23,7 @@ func (m mockDatabase) InsertOne(ctx context.Context, doc interface{}) error {
 	return m.insertOne(ctx, doc)
 }
 
-func (m mockDatabase) DeleteOne(ctx context.Context, filter interface{}) error {
+func (m mockDatabase) DeleteOne(ctx context.Context, filter interface{}) (*mongolib.DeleteResult, error) {
 	return m.deleteOne(ctx, filter)
 }
 

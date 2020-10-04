@@ -16,7 +16,7 @@ import (
 type mockDatabase struct {
 	createUser func(ctx context.Context, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
 	updateUser func(ctx context.Context, guid string, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
-	removeUser func(ctx context.Context, guid string) error
+	removeUser func(ctx context.Context, guid string) (int64, error)
 	getUsers   func(ctx context.Context, params url.Values) ([]*mongo.User, error)
 }
 
@@ -28,7 +28,7 @@ func (m mockDatabase) GetUsers(ctx context.Context, params url.Values) ([]*mongo
 	return m.getUsers(ctx, params)
 }
 
-func (m mockDatabase) RemoveUser(ctx context.Context, guid string) error {
+func (m mockDatabase) RemoveUser(ctx context.Context, guid string) (int64, error) {
 	return m.removeUser(ctx, guid)
 }
 

@@ -15,7 +15,7 @@ import (
 type UsersDatabase interface {
 	CreateUser(ctx context.Context, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
 	UpdateUser(ctx context.Context, guid string, nickname string, firstname string, lastname string, password string, email string, country string) (*mongo.User, error)
-	RemoveUser(ctx context.Context, guid string) error
+	RemoveUser(ctx context.Context, guid string) (int64, error)
 	GetUsers(ctx context.Context, params url.Values) ([]*mongo.User, error)
 }
 
@@ -93,10 +93,15 @@ func (handler *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (handler *Handler) RemoveUser(w http.ResponseWriter, r *http.Request) {
 	userid := mux.Vars(r)["userid"]
 
-	err := handler.Database.RemoveUser(r.Context(), userid)
+	count, err := handler.Database.RemoveUser(r.Context(), userid)
 	if err != nil {
 		handler.Logger.WithError(err)
 		writeResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if count == 0 {
+		writeResponse(w, http.StatusNotFound, "user not found")
 		return
 	}
 

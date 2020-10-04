@@ -62,9 +62,8 @@ func (c CollectionAdapter) FindOneAndUpdate(ctx context.Context, filter interfac
 }
 
 // DeleteOne removes a document from Mongo
-func (c CollectionAdapter) DeleteOne(ctx context.Context, filter interface{}) error {
-	_, err := c.Collection.DeleteOne(ctx, filter)
-	return err
+func (c CollectionAdapter) DeleteOne(ctx context.Context, filter interface{}) (*mongolib.DeleteResult, error) {
+	return c.Collection.DeleteOne(ctx, filter)
 }
 
 // Find returns all documents from Mongo matching the given query
