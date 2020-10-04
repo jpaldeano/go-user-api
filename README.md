@@ -32,7 +32,7 @@ Tests (from route dir)
 - I'd Hash & Salt the passwords.
 - Body fields validation, e.g, check email format or check if country is valid.
 
-## API Endpoints
+## API Endpoints - runs on localhost
 
 ### Add a new user
 
