@@ -4,7 +4,13 @@ This is a small micro-service written in Go, using a containarized api and datab
 Also there is a status route to check service health.
 
 ### How to run?
+API + MONGO DB
 > docker-compose build && docker-compose up
+
+
+Tests (from route dir)
+> gotest ./...
+
 
 ### Assumptions made during development
 - Regarding Mongo Adapters, I decided to separate Mongo Adapter for two simple reasons: the first is makes easier to test, the `mongo.go` doesn't have external libraries so coding adapters this way makes mocking pretty simple, also there is no point on testing functions from external libraries because libs should have their own tests. The second reason is it makes easier if we decide to move our database provider, (e.g) if we need to change for instance `mongo.db` to `mysql`, mongo is wrapped so we wouldn't need to change our API code.
