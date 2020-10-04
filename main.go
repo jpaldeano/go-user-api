@@ -11,6 +11,7 @@ import (
 	"github.com/jpaldi/go-user-api/handlers"
 	"github.com/jpaldi/go-user-api/mongo"
 	adapter "github.com/jpaldi/go-user-api/mongo/adapter"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -45,10 +46,12 @@ func main() {
 }
 
 func mustBuildRoutes(r *mux.Router, db mongo.Mongo, healthChecker health) {
-
+	log := logrus.New()
 	usersHandler := handlers.Handler{
 		Database: db,
+		Logger:   log,
 	}
+
 	r.HandleFunc("/health", healthChecker.health).Methods(http.MethodGet)
 	r.HandleFunc("/users", usersHandler.CreateUser).Methods(http.MethodPost)
 	r.HandleFunc("/users", usersHandler.GetUsers).Methods(http.MethodGet).Queries()

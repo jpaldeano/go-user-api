@@ -24,6 +24,7 @@ Also there is a status route to check service health.
 - I'd write e2e tests, by running the api on a test container and making calls to the api then making assertions to responses and database documents etc.
 - I would add pagination to the GET users route, because if you have millions of users you can't just get them all at a single time.
 - I'd Hash & Salt the passwords.
+- Body fields validation, e.g, check email format or check if country is valid.
 
 ## API Endpoints
 
