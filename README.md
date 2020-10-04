@@ -11,6 +11,7 @@ API + MONGO DB
 Tests (from route dir)
 > gotest ./...
 
+The API runs on localhost on port 8080.
 
 ### Assumptions made during development
 - Regarding Mongo Adapters, I decided to separate Mongo Adapter for two simple reasons: the first is makes easier to test, the `mongo.go` doesn't have external libraries so coding adapters this way makes mocking pretty simple, also there is no point on testing functions from external libraries because libs should have their own tests. The second reason is it makes easier if we decide to move our database provider, (e.g) if we need to change for instance `mongo.db` to `mysql`, mongo is wrapped so we wouldn't need to change our API code.
@@ -33,8 +34,6 @@ Tests (from route dir)
 - Body fields validation, e.g, check email format or check if country is valid.
 
 ## API Endpoints 
-
-This API runs on localhost
 
 ### Add a new user
 
