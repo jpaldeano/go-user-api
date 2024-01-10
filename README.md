@@ -1,5 +1,5 @@
 # Users Service
-
+ 
 This is a small micro-service written in Go, using a containarized api and database which provide functionalities to add, delete, update and read users with the following fields: first name, last name, nickname, password, email and country.
 Also there is a status route to check service health.
 
